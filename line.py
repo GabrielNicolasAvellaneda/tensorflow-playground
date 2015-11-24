@@ -1,8 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-# Slightly modified from the demo to fit data to a line rather than a plane
-
+# Slightly modified from the demo to fit a line and uses the Adam optimization algorithm
 
 # Make 100 phony data points in NumPy.
 x_data = np.float32(np.random.rand(1, 100)) # Random input
@@ -15,7 +14,7 @@ y = tf.matmul(W, x_data) + b
 
 # Minimize the squared errors.
 loss = tf.reduce_mean(tf.square(y - y_data))
-optimizer = tf.train.GradientDescentOptimizer(0.5)
+optimizer = tf.train.AdamOptimizer(0.5)
 train = optimizer.minimize(loss)
 
 # For initializing the variables.
@@ -31,4 +30,4 @@ for step in xrange(0, 201):
     if step % 20 == 0:
         print step, sess.run(W), sess.run(b)
 
-# Learns best fit is W: [[0.100  0.200]], b: [0.300]
+# Learns best fit is W: [[0.100]], b: [0.300]
