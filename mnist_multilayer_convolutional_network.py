@@ -20,8 +20,8 @@ def max_pool_2x2(x):
   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
 
-x = tf.placeholder("float", shape=[None, 784]) # None means the batch size can be any length
-y_ = tf.placeholder("float", shape=[None, 10]) # One-hot 10-dimensional vector indicating which digit class the corresponding MNIST image belongs to
+x = tf.placeholder("float", shape=[None, 784], name="x") # None means the batch size can be any length
+y_ = tf.placeholder("float", shape=[None, 10], name="y_") # One-hot 10-dimensional vector indicating which digit class the corresponding MNIST image belongs to
 
 
 W_conv1 = weight_variable([5, 5, 1, 32]) # patch size (x,y), then number of input channels, then number of output channels
@@ -57,7 +57,7 @@ h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 # Dropout
 
-keep_prob = tf.placeholder("float")
+keep_prob = tf.placeholder("float", name="keep_prob")
 h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 
 
@@ -75,8 +75,11 @@ cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
 tf.scalar_summary("cross_entropy", cross_entropy)
 
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
+
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+tf.scalar_summary("accuracy", accuracy)
 
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
