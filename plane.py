@@ -12,6 +12,7 @@ y = tf.matmul(W, x_data) + b
 
 # Minimize the squared errors.
 loss = tf.reduce_mean(tf.square(y - y_data))
+tf.scalar_summary( "loss", loss )
 optimizer = tf.train.GradientDescentOptimizer(0.5)
 train = optimizer.minimize(loss)
 
@@ -22,10 +23,17 @@ init = tf.initialize_all_variables()
 sess = tf.Session()
 sess.run(init)
 
+summary_op  = tf.merge_all_summaries()
+summary_writer = tf.train.SummaryWriter( 'data' )
+
 # Fit the plane.
 for step in xrange(0, 201):
     sess.run(train)
     if step % 20 == 0:
         print step, sess.run(W), sess.run(b)
+    summary_str = sess.run(summary_op)
+    summary_writer.add_summary(summary_str, step)
+
+summary_writer.add_graph( sess.graph_def )
 
 # Learns best fit is W: [[0.100  0.200]], b: [0.300]

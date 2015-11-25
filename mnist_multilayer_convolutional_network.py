@@ -80,6 +80,7 @@ tf.scalar_summary("cross_entropy", cross_entropy)
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
     summary_writer = tf.train.SummaryWriter( 'data' )
+
     sess.run(tf.initialize_all_variables())
 
     for i in range(2001):
@@ -96,6 +97,7 @@ with tf.Session() as sess:
     print "test accuracy %g"%accuracy.eval(feed_dict={
         x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
 
+    summary_writer.add_graph( sess.graph_def )
 '''
 
 Sample output:
