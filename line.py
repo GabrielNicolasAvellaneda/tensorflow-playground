@@ -28,6 +28,6 @@ sess.run(init)
 for step in xrange(0, 201):
     sess.run(train)
     if step % 20 == 0:
-        print step, sess.run(W), sess.run(b)
+        print step, sess.run(W), sess.run(b), sess.run(loss)
 
 # Learns best fit is W: [[0.100]], b: [0.300]
