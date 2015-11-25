@@ -72,10 +72,11 @@ y_conv=tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 # Train and Evaluate the Model
 
 cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
+tf.scalar_summary("cross_entropy", cross_entropy)
+
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-tf.scalar_summary("cross_entropy", cross_entropy)
 
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
@@ -86,9 +87,9 @@ with tf.Session() as sess:
     for i in range(2001):
       batch = mnist.train.next_batch(50)
       if i%100 == 0:
-        train_accuracy = accuracy.eval(feed_dict={
-            x:batch[0], y_: batch[1], keep_prob: 1.0})
-        summary_str = sess.run(summary_op)
+        feed_dict = {x:batch[0], y_: batch[1], keep_prob: 1.0}
+        train_accuracy = accuracy.eval(feed_dict=feed_dict)
+        summary_str = sess.run(summary_op, feed_dict)
         summary_writer.add_summary(summary_str, i)
         print "step %d, training accuracy %g"%(i, train_accuracy)
 
