@@ -9,5 +9,5 @@ For example,
 
 
 # Resources
-* [http://cs231n.github.io/convolutional-networks/](CS231n Convolutional Neural Networks for Visual Recognition)
 * [http://neuralnetworksanddeeplearning.com/index.html](Neural Networks and Deep Learning)
+* [http://cs231n.github.io/convolutional-networks/](CS231n Convolutional Neural Networks for Visual Recognition)
