@@ -28,32 +28,32 @@ x_image = tf.reshape(x, [-1,28,28,1]) #the second and third dimensions correspon
 
 # First Convolutional Layer
 
-W_conv1 = weight_variable([5, 5, 1, 32]) # patch size (x,y), then number of input channels, then number of output channels
+W_conv1 = weight_variable([7, 7, 1, 32]) # patch size (x,y), then number of input channels, then number of output channels
 b_conv1 = bias_variable([32])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
 # Second Convolution Layer
 
-W_conv15 = weight_variable([5, 5, 32, 48]) # patch size (x,y), then number of input channels, then number of output channels
-b_conv15 = bias_variable([48])
+W_conv15 = weight_variable([5, 5, 32, 64]) # patch size (x,y), then number of input channels, then number of output channels
+b_conv15 = bias_variable([64])
 h_conv15 = tf.nn.relu(conv2d(h_pool1, W_conv15) + b_conv15)
 h_pool15 = max_pool_2x2(h_conv15)
 
 # Third Convolutional Layer
 
-W_conv2 = weight_variable([5, 5, 48, 64]) # patch size (x,y), then number of input channels, then number of output channels
-b_conv2 = bias_variable([64])
+W_conv2 = weight_variable([3, 3, 64, 128]) # patch size (x,y), then number of input channels, then number of output channels
+b_conv2 = bias_variable([128])
 h_conv2 = tf.nn.relu(conv2d(h_pool15, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
 
 
 # Densely Connected Layer
 
-W_fc1 = weight_variable([4 * 4 * 64, 1024]) # 4 = FLOOR(7/2)
+W_fc1 = weight_variable([4 * 4 * 128, 1024]) # 4 = FLOOR(7/2)
 b_fc1 = bias_variable([1024])
 
-h_pool2_flat = tf.reshape(h_pool2, [-1, 4*4*64])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 4*4*128])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 
@@ -81,7 +81,8 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-tf.scalar_summary("accuracy", accuracy)
+tf.scalar_summary("train accuracy", accuracy)
+tf.image_summary("images", x_image, max_images=50)
 
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
@@ -91,7 +92,7 @@ with tf.Session() as sess:
 
     for i in range(5001):
       batch = mnist.train.next_batch(50)
-      if i%500 == 0:
+      if i%250 == 0:
         feed_dict = {x:batch[0], y_: batch[1], keep_prob: 1.0}
         train_accuracy = accuracy.eval(feed_dict=feed_dict)
         summary_str = sess.run(summary_op, feed_dict)
@@ -100,13 +101,13 @@ with tf.Session() as sess:
 
       train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
+
+    print W_conv1.eval()
+    summary_writer.add_graph( sess.graph_def )
     print "test accuracy %g"%accuracy.eval(feed_dict={
         x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
 
-    summary_writer.add_graph( sess.graph_def )
 
-
-    print W_conv1.eval()
 '''
 
 Sample output:
