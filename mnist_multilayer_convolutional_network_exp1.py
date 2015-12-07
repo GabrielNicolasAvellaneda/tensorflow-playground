@@ -28,32 +28,35 @@ x_image = tf.reshape(x, [-1,28,28,1]) #the second and third dimensions correspon
 
 # First Convolutional Layer
 
-W_conv1 = weight_variable([5, 5, 1, 32]) # patch size (x,y), then number of input channels, then number of output channels
-b_conv1 = bias_variable([32])
+W_conv1 = weight_variable([5, 5, 1, 64]) # patch size (x,y), then number of input channels, then number of output channels
+b_conv1 = bias_variable([64])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
-# Second Convolution Layer
 
-W_conv15 = weight_variable([5, 5, 32, 48]) # patch size (x,y), then number of input channels, then number of output channels
-b_conv15 = bias_variable([48])
-h_conv15 = tf.nn.relu(conv2d(h_pool1, W_conv15) + b_conv15)
-h_pool15 = max_pool_2x2(h_conv15)
+# Second Convolutional Layer
 
-# Third Convolutional Layer
+W_conv2 = weight_variable([5, 5, 64, 150]) # patch size (x,y), then number of input channels, then number of output channels
+b_conv2 = bias_variable([150])
 
-W_conv2 = weight_variable([5, 5, 48, 64]) # patch size (x,y), then number of input channels, then number of output channels
-b_conv2 = bias_variable([64])
-h_conv2 = tf.nn.relu(conv2d(h_pool15, W_conv2) + b_conv2)
+h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
+
+# # Third Convolutional Layer
+
+# W_conv3 = weight_variable([5, 5, 64, 150]) # patch size (x,y), then number of input channels, then number of output channels
+# b_conv3 = bias_variable([150])
+
+# h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
+# h_pool3 = max_pool_2x2(h_conv3)
 
 
 # Densely Connected Layer
 
-W_fc1 = weight_variable([4 * 4 * 64, 1024]) # 4 = FLOOR(7/2)
+W_fc1 = weight_variable([7 * 7 * 150, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool2_flat = tf.reshape(h_pool2, [-1, 4*4*64])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*150])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 
@@ -69,7 +72,7 @@ h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 W_fc2 = weight_variable([1024, 10])
 b_fc2 = bias_variable([10])
 
-y_conv=tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
 # Train and Evaluate the Model
 
@@ -85,13 +88,13 @@ tf.scalar_summary("accuracy", accuracy)
 
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
-    summary_writer = tf.train.SummaryWriter( 'data2' )
+    summary_writer = tf.train.SummaryWriter( 'data' )
 
     sess.run(tf.initialize_all_variables())
 
-    for i in range(5001):
+    for i in range(2001):
       batch = mnist.train.next_batch(50)
-      if i%500 == 0:
+      if i%100 == 0:
         feed_dict = {x:batch[0], y_: batch[1], keep_prob: 1.0}
         train_accuracy = accuracy.eval(feed_dict=feed_dict)
         summary_str = sess.run(summary_op, feed_dict)
@@ -104,24 +107,13 @@ with tf.Session() as sess:
         x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
 
     summary_writer.add_graph( sess.graph_def )
-
-
-    print W_conv1.eval()
 '''
 
 Sample output:
 
-step 0, training accuracy 0.1
-step 500, training accuracy 0.92
-step 1000, training accuracy 0.98
-step 1500, training accuracy 1
-step 2000, training accuracy 0.96
-step 2500, training accuracy 0.98
-step 3000, training accuracy 0.98
-step 3500, training accuracy 1
-step 4000, training accuracy 1
-step 4500, training accuracy 1
-test accuracy 0.9894
-
+step 0, training accuracy 0.12
+step 1000, training accuracy 0.96
+step 2000, training accuracy 0.98
+test accuracy 0.9742
 
 '''

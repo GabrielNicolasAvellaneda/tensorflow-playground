@@ -12,7 +12,8 @@ y = tf.matmul(W, x_data) + b
 
 # Minimize the squared errors.
 loss = tf.reduce_mean(tf.square(y - y_data))
-tf.scalar_summary( "loss", loss )
+tf.scalar_summary("loss", loss)
+
 optimizer = tf.train.GradientDescentOptimizer(0.5)
 train = optimizer.minimize(loss)
 
