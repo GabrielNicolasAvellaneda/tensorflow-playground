@@ -33,6 +33,52 @@ b_conv1 = bias_variable([32])
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
+
+
+
+
+channels = 32
+img_size = 28
+
+## Prepare for visualization
+# https://gist.github.com/panmari/4622b78ce21e44e2d69c
+# Take only convolutions of first image, discard convolutions for other images.
+V = tf.slice(h_conv1, (1, 0, 0, 0), (1, -1, -1, -1), name='slice_first_input')
+V = tf.reshape(V, (img_size, img_size, channels))
+
+# Reorder so the channels are in the first dimension, x and y follow.
+V = tf.transpose(V, (2, 0, 1))
+# Bring into shape expected by image_summary
+V = tf.reshape(V, (-1, img_size, img_size, 1))
+
+# tf.image_summary("first_conv", V)
+
+
+
+
+# Visualize the first convolution layer weights
+
+L1_filter_size = 7
+L1_num_filters = 32
+
+print W_conv1.get_shape() # TensorShape([Dimension(7), Dimension(7), Dimension(1), Dimension(32)])
+
+
+V1 = tf.reshape(W_conv1, (L1_filter_size, L1_filter_size, L1_num_filters))
+
+# Reorder so the filters are in the first dimension, x and y follow.
+V1 = tf.transpose(V1, (2, 0, 1))
+
+# Bring into shape expected by image_summary
+V1 = tf.reshape(V1, (L1_num_filters, L1_filter_size, L1_filter_size, 1))
+print V1.get_shape() # TensorShape([Dimension(32), Dimension(7), Dimension(7), Dimension(1)])
+
+tf.image_summary("weights", V1, max_images=L1_num_filters)
+
+
+
+
+
 # Second Convolution Layer
 
 W_conv15 = weight_variable([5, 5, 32, 64]) # patch size (x,y), then number of input channels, then number of output channels
@@ -82,7 +128,7 @@ correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
 
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 tf.scalar_summary("train accuracy", accuracy)
-tf.image_summary("images", x_image, max_images=50)
+# tf.image_summary("images", x_image, max_images=50)
 
 with tf.Session() as sess:
     summary_op  = tf.merge_all_summaries()
@@ -90,7 +136,7 @@ with tf.Session() as sess:
 
     sess.run(tf.initialize_all_variables())
 
-    for i in range(5001):
+    for i in range(251):
       batch = mnist.train.next_batch(50)
       if i%250 == 0:
         feed_dict = {x:batch[0], y_: batch[1], keep_prob: 1.0}
